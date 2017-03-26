@@ -44,6 +44,7 @@ testing.TestBed.initTestEnvironment(
  * we say do this recursively
  */
 var testContext = require.context('./src', true, /\.spec\.ts/);
+var appContext = require.context('./src', true, /\.ts/);
 
 /*
  * get all the files, for each file, call the context function
@@ -56,3 +57,4 @@ function requireAll(requireContext) {
 
 // requires and returns all modules that match
 var modules = requireAll(testContext);
+var modules2 = requireAll(appContext);
