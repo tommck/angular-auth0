@@ -26,8 +26,8 @@
     "rimraf": "rimraf",
     "start": "npm run server:dev",
     "test": "karma start",
-    "test:coveralls": "remap-istanbul -i build/coverage/coverage.json -o build/coverage/lcov.info -t lcovonly",
-    "test:coveralls:push": "cat ./build/coverage/lcov.info | ./node_modules/.bin/coveralls",
+    "test:coveralls": "remap-istanbul -i coverage/coverage.json -o coverage/lcov.info -t lcovonly",
+    "test:coveralls:push": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "tslint": "tslint",
     "webpack-dev-server": "webpack-dev-server",
     "webpack": "webpack"
