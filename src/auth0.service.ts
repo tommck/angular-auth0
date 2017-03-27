@@ -69,9 +69,10 @@ export class Auth0Service {
     tokenNotExpired(tokenName?: string, jwt?: string) {
         tokenNotExpired(tokenName, jwt);
     }
-    resumeAuth$(){
+
+    resumeAuth$() {
         return new Observable(observer => {
-            (<any> this.lock).resumeAuth(window.location.hash, (error, authResult) => {
+            this.lock.resumeAuth(window.location.hash, (error, authResult) => {
                 if (error) {
                     observer.error(error);
                 } else {

@@ -16,8 +16,8 @@ describe('Auth0 service', () => {
     beforeEach(() => TestBed.configureTestingModule({
         providers: [
             { provide: Router, useValue: { events: events } },
-            { provide: Auth0StorageService, useValue: { get: () => {}, remove: () => {} } },
-            { provide: Auth0LockStatic, useValue: { show: () => {}, logout: () => {} } },
+            { provide: Auth0StorageService, useValue: { store: () => {}, get: () => {}, remove: () => {} } },
+            { provide: Auth0LockStatic, useValue: { show: () => {}, logout: () => {}, resumeAuth: () => {} } },
             Auth0Service
         ]}));
 
@@ -62,15 +62,22 @@ describe('Auth0 service', () => {
             expect(authResult).toBeNull();
         }));
 
-        /*it('should emit on route', inject([
+        it('should emit on route', inject([
             Auth0Service,
             Router,
-            Auth0LockStatic
-        ], (service: Auth0Service, router: Router, lock: Auth0LockStatic) => {
-            const expectedAuthResult = {};
+            Auth0StorageService
+        ], (service: Auth0Service, router: Router, storage: Auth0StorageService) => {
+            const expectedAuthResult = {
+                idToken: '',
+                accessToken: '',
+                refreshToken: '',
+                state: '',
+                idTokenPayload: undefined
+            };
             let authResult;
 
             spyOn(service, 'resumeAuth$').and.returnValue(Observable.of(expectedAuthResult));
+            spyOn(storage, 'store').and.stub();
 
             service.auth$.subscribe(x => authResult = x);
             events.next({
@@ -81,7 +88,59 @@ describe('Auth0 service', () => {
             });
 
             expect(authResult).toEqual(expectedAuthResult);
-        }));*/
+        }));
+    });
+
+    describe('resumeAuth$', () => {
+        it('should emit and complete when `lock.resumeAuth()` calls the callback fn', inject([
+            Auth0Service,
+            Auth0LockStatic
+        ], (service: Auth0Service, lock: Auth0LockStatic) => {
+
+            const expectedAuthResult = {
+                idToken: '',
+                accessToken: '',
+                refreshToken: '',
+                state: '',
+                idTokenPayload: undefined
+            };
+
+            spyOn(lock, 'resumeAuth').and.callFake((hash, cb) => {
+                cb(null, expectedAuthResult);
+            });
+
+            let result,
+                isCompleted;
+            service.resumeAuth$()
+                .subscribe(x => result = x, undefined, () => isCompleted = true);
+
+            expect(result).toBe(expectedAuthResult);
+            expect(isCompleted).toBe(true);
+        }));
+
+        it('should error when `lock.resumeAuth()` calls the callback fn with an `error` argument', inject([
+            Auth0Service,
+            Auth0LockStatic
+        ], (service: Auth0Service, lock: Auth0LockStatic) => {
+
+            const expectedAuthResult = {
+                idToken: '',
+                accessToken: '',
+                refreshToken: '',
+                state: '',
+                idTokenPayload: undefined
+            };
+
+            spyOn(lock, 'resumeAuth').and.callFake((hash, cb) => {
+                cb('error', expectedAuthResult);
+            });
+
+            let hasErrored = false;
+            service.resumeAuth$()
+                .subscribe(undefined, () => hasErrored = true);
+
+            expect(hasErrored).toBe(true);
+        }));
     });
 
     describe('login', () => {
