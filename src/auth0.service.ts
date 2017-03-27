@@ -39,8 +39,14 @@ export class Auth0Service {
                 .do(() => this.storage.remove('auth_result'))
         ).subscribe(x => this.auth$.next(x));
 
+
+    }
+
+    init() {
         if (this.authenticated()) {
             this.auth$.next(this.storage.get<Auth0AuthResult>('auth_result'));
+        } else {
+            this.auth$.next(null);
         }
     }
 
@@ -50,7 +56,7 @@ export class Auth0Service {
 
     authenticated() {
         const authResult = this.storage.get<Auth0AuthResult>('auth_result');
-        return authResult ? tokenNotExpired(null, authResult.idToken) : false;
+        return authResult ? this.tokenNotExpired(null, authResult.idToken) : false;
     }
 
     logout(remoteLogout?: boolean) {
@@ -60,7 +66,10 @@ export class Auth0Service {
         }
     }
 
-    private resumeAuth$(){
+    tokenNotExpired(tokenName?: string, jwt?: string) {
+        tokenNotExpired(tokenName, jwt);
+    }
+    resumeAuth$(){
         return new Observable(observer => {
             (<any> this.lock).resumeAuth(window.location.hash, (error, authResult) => {
                 if (error) {
@@ -69,15 +78,6 @@ export class Auth0Service {
                     observer.next(authResult);
                     observer.complete();
                 }
-            });
-        });
-    }
-
-    private authenticated$(){
-        return new Observable(observer => {
-            this.lock.on('authenticated', (authResult) => {
-                observer.next(authResult);
-                observer.complete();
             });
         });
     }
