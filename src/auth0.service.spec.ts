@@ -8,7 +8,7 @@ import { Auth0StorageService } from './auth0.storage.service';
 import Auth0LockStatic from 'auth0-lock';
 import { Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
-import { tokenNotExpired } from 'angular2-jwt';
+import * as angular2Jwt from 'angular2-jwt';
 
 describe('Auth0 service', () => {
     const events = new Subject<{}>();
@@ -213,11 +213,11 @@ describe('Auth0 service', () => {
         ], (service: Auth0Service, storage: Auth0StorageService) => {
             const authResult = {};
             spyOn(storage, 'get').and.returnValue(authResult);
-            spyOn(service, 'tokenNotExpired').and.stub();
+            spyOn(angular2Jwt, 'tokenNotExpired').and.stub();
 
             service.authenticated();
 
-            expect(service.tokenNotExpired).toHaveBeenCalled();
+            expect(angular2Jwt.tokenNotExpired).toHaveBeenCalled();
         }));
 
         it('should return false when an expired `auth_result` was found`', inject([
